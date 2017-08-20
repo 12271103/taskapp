@@ -7,16 +7,29 @@
 //
 
 import UIKit
+import UserNotifications
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
   var window: UIWindow?
 
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
     // Override point for customization after application launch.
+    
+    //ユーザーに通知の許可を求める
+    let center = UNUserNotificationCenter.current()
+    center.requestAuthorization(options: [.alert,.sound]){
+      (granted,error) in
+    }
+    center.delegate = self;
+    
     return true
+  }
+  
+  func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification:UNNotification, withCompletionHandler: @escaping(UNNotificationPresentationOptions)->Void){
+    withCompletionHandler([.sound,.alert])
   }
 
   func applicationWillResignActive(_ application: UIApplication) {
