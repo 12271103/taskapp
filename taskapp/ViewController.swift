@@ -10,9 +10,10 @@ import UIKit
 import RealmSwift
 import UserNotifications
 
-class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSource {
+class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSource ,UISearchBarDelegate{
   
   @IBOutlet weak var tableView: UITableView!
+  @IBOutlet weak var searchBar: UISearchBar!
   
   //realmのインスタンスを取得
   let realm = try! Realm()
@@ -27,6 +28,7 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     
     tableView.delegate = self
     tableView.dataSource = self
+    searchBar.delegate = self
   }
 
   override func didReceiveMemoryWarning() {
@@ -42,21 +44,21 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     if segue.identifier ==  "cellSegue"{
       let indexPath = self.tableView.indexPathForSelectedRow
       inputViewController.task = taskArray[indexPath!.row]
-      print("cellsegueだったのでそのまま遷移したよ")//デバッグ用
+      print(taskArray)
     }else{
-      print("cellsegueではなかったので色々やってから遷移したよ")//デバッグ用
       let task = Task()
       task.date = NSDate()
       
       if taskArray.count != 0{
         //既存の最大idより一つ大きいidを作成して代入
-        print("taskarray.countが0ではなかったよ！（\(taskArray.count)）")
         task.id = taskArray.max(ofProperty: "id")! + 1
       }
       
       inputViewController.task = task
     }
   }
+  
+  
   
   //入力画面から戻ってきたときにtableviewをこうしん
   override func viewWillAppear(_ animated: Bool) {
@@ -65,12 +67,15 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
   }
   
   
+  
   //MARK:UITableVIewDataSourceプロトコルのメソッド
   //データの数を返すメソッド
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     print("tableview.count = \(taskArray.count)")//??なんで４回も実行されてるの？
     return taskArray.count
   }
+  
+  
   
   //各セルの内容を返すメソッド
   //taskarrayから該当するデータを取り出してセルに設定
@@ -91,16 +96,22 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     return cell
   }
   
+  
+  
   //MARK:uitableviewdelegateプロトコルのメソッド
   //各セルを選択した時に実行されるメソッド
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     performSegue(withIdentifier: "cellSegue", sender: nil)
   }
   
+  
+  
   //セルが削除が可能なことを伝えるメソッド
   func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
     return UITableViewCellEditingStyle.delete
   }
+  
+  
   
   //delete ぽたんが押された時に呼ばれるメソッド
   func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
@@ -130,5 +141,17 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
       }
     }
   }//func
+  
+  //検索ぼたん
+  func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+    print("hai")
+    var searchword = "category BEGINSWITH '" + searchBar.text! + "'"
+    
+    let predicate = NSPredicate(format: searchword)
+    taskArray = realm.objects(Task).filter(searchword)
+    self.tableView.reloadData()
+    
+  }
+  
 
 }

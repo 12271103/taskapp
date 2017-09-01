@@ -13,6 +13,10 @@ class Task:Object {
   //日時
   dynamic var date = NSDate()
   
+  //categoryのstringプロパティを作成
+  dynamic var category = ""
+  
+  
   /**
  idをプライマリキーとして設定
  */
